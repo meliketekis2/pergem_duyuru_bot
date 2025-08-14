@@ -1,51 +1,30 @@
-name: PERGEM Duyuru Botu
+name: PERGEM Bot
 
 on:
-  workflow_dispatch: {}
   schedule:
-    - cron: "*/30 * * * *"  # Her 30 dakikada bir (UTC)
-
-permissions:
-  contents: write
-
-concurrency:
-  group: pergem-bot
-  cancel-in-progress: false
+    - cron: '0,30 5-14 * * 1-5' # Her 30 dakikada bir, hafta içi, İstanbul saati 08-17
+  workflow_dispatch:
 
 jobs:
-  run:
+  run-bot:
     runs-on: ubuntu-latest
     steps:
-      - name: Repoyu çek
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+      - name: Kodu checkout et
+        uses: actions/checkout@v3
 
       - name: Python kur
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v4
         with:
           python-version: "3.11"
 
-      - name: Bağımlılıkları yükle
+      - name: Gereksinimleri yükle
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install requests beautifulsoup4 lxml
 
       - name: Botu çalıştır
         env:
           BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
           CHAT_ID: ${{ secrets.CHAT_ID }}
-        run: |
-          python bot.py
+        run: python pergem_bot.py
 
-      - name: Durum dosyasını commit & push et (değiştiyse)
-        run: |
-          if [ -n "$(git status --porcelain)" ]; then
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add last_pergem_duyuru.txt
-            git commit -m "Update last_pergem_duyuru.txt [skip ci]"
-            git push
-          else
-            echo "Değişiklik yok."
-          fi
