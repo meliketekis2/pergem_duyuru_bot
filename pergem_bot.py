@@ -40,7 +40,9 @@ def send_telegram(msg):
 def main():
     ann = fetch_announcements()
     if not ann:
-        print("Duyuru listesi bulunamadı.")
+        msg = "Duyuru listesi bulunamadı."
+        send_telegram(msg)
+        print(msg)
         return
     latest = ann[0]
     if latest != load_last():
@@ -49,7 +51,10 @@ def main():
         print("Yeni duyuru bildirildi:", latest)
         save_last(latest)
     else:
-        print("Yeni duyuru yok.")
+        msg = "Yeni PERGEM duyurusu yok."
+        send_telegram(msg)
+        print(msg)
 
 if __name__ == "__main__":
     main()
+
